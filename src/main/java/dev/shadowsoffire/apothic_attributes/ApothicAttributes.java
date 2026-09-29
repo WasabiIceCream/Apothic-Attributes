@@ -15,7 +15,6 @@ import dev.shadowsoffire.placebo.registry.DeferredHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -23,7 +22,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -51,7 +49,7 @@ public class ApothicAttributes implements ModInitializer {
 
     /**
      * Static record of {@link Player#getAttackStrengthScale(float)} for use in damage events.<br>
-     * Recorded when a player attacks and valid for the entire chain.
+     * Recorded when a player attacks (see {@link #recordAtkStrength}) and valid for the entire chain.
      */
     private static float localAtkStrength = 1;
 
@@ -66,10 +64,6 @@ public class ApothicAttributes implements ModInitializer {
 
         MobEffects.BLINDNESS.value().addAttributeModifier(Attributes.FOLLOW_RANGE, loc("blindness"), -0.75, Operation.ADD_MULTIPLIED_TOTAL);
 
-        AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
-            localAtkStrength = player.getAttackStrengthScale(0.5F);
-            return InteractionResult.PASS;
-        });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> pruneCooldowns(handler.getPlayer()));
         // Upstream marks every player attribute syncable in common setup; every mod's attributes are registered by server start.
         ServerLifecycleEvents.SERVER_STARTING.register(server -> markPlayerAttributesSyncable());
@@ -85,6 +79,13 @@ public class ApothicAttributes implements ModInitializer {
                 attr.value().setSyncable(true);
             }
         });
+    }
+
+    /**
+     * Called at the start of {@link Player#attack(net.minecraft.world.entity.Entity)} (see {@code PlayerMixin}).
+     */
+    public static void recordAtkStrength(Player player) {
+        localAtkStrength = player.getAttackStrengthScale(0.5F);
     }
 
     public static File getConfigFile(String path) {

@@ -2,9 +2,17 @@ package dev.shadowsoffire.apothic_attributes.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import dev.shadowsoffire.apothic_attributes.ApothicAttributes;
+import dev.shadowsoffire.apothic_attributes.api.ALObjects;
+import dev.shadowsoffire.apothic_attributes.impl.AttributeEvents;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -12,13 +20,19 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import dev.shadowsoffire.apothic_attributes.api.ALObjects;
-import dev.shadowsoffire.apothic_attributes.impl.AttributeEvents;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(value = Player.class, remap = false)
 public class PlayerMixin {
+
+    /**
+     * Records the attack strength for {@link ApothicAttributes#getLocalAtkStrength}. Upstream records it in NeoForge's
+     * AttackEntityEvent; Fabric's equivalent only fires for the vanilla attack packet, which mods like Better Combat bypass
+     * for some attacks, and vanilla resets the strength (in {@code onAttack}) before the damage is dealt.
+     */
+    @Inject(method = "attack(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
+    private void apoth_recordAtkStrength(Entity target, CallbackInfo ci) {
+        ApothicAttributes.recordAtkStrength((Player) (Object) this);
+    }
 
     /**
      * Wraps {@link Entity#hurtOrSimulate(DamageSource, float)} in {@link Player#attack(Entity)} so aux damage kills still flow through follow-up logic.
