@@ -109,9 +109,24 @@ public abstract class LivingEntityMixin extends Entity implements LEInvoker {
         if (self.getAttributeValue(ALObjects.Attributes.ELYTRA_FLIGHT) > 0
             && !self.onGround()
             && !self.isPassenger()
-            && !self.hasEffect(MobEffects.LEVITATION)) {
+            && !self.hasEffect(MobEffects.LEVITATION)
+            && apoth_hasGliderSlot(self)) {
             cir.setReturnValue(true);
         }
+    }
+
+    /**
+     * Port note: only glide through the attribute when an equipped item provides it. With no such slot, vanilla's
+     * updateFallFlying picks a random slot from an empty list; upstream guards that call, but Trinkets rewrites it
+     * (its own random pick), so the guard never ran and players were kicked ("Bound must be positive").
+     */
+    private static boolean apoth_hasGliderSlot(LivingEntity entity) {
+        for (EquipmentSlot slot : EquipmentSlot.VALUES) {
+            if (LivingEntity.canGlideUsing(entity.getItemBySlot(slot), slot)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -122,15 +137,17 @@ public abstract class LivingEntityMixin extends Entity implements LEInvoker {
      */
     @Inject(method = "canGlideUsing(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/EquipmentSlot;)Z", at = @At("HEAD"), cancellable = true, require = 1)
     private static void apoth_canGlideUsingFromAttribute(ItemStack stack, EquipmentSlot slot, CallbackInfoReturnable<Boolean> cir) {
-        ItemAttributeModifiers mods = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
-        if (mods == null) return;
-        for (ItemAttributeModifiers.Entry entry : mods.modifiers()) {
-            if (entry.attribute().equals(ALObjects.Attributes.ELYTRA_FLIGHT)
-                && entry.slot().test(slot)
-                && entry.modifier().amount() > 0) {
-                cir.setReturnValue(true);
-                return;
+        // Port note: forEachModifier includes modifiers other mods add dynamically (Apotheosis affixes and gems, e.g. the
+        // Winged affix); upstream read only the stored ATTRIBUTE_MODIFIERS component.
+        if (stack.isEmpty()) return;
+        boolean[] flight = { false };
+        stack.forEachModifier(slot, (attribute, modifier) -> {
+            if (attribute.equals(ALObjects.Attributes.ELYTRA_FLIGHT) && modifier.amount() > 0) {
+                flight[0] = true;
             }
+        });
+        if (flight[0]) {
+            cir.setReturnValue(true);
         }
     }
 
