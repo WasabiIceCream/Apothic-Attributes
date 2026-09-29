@@ -11,7 +11,9 @@
     "LivingEntityHooksMixin",
     "LivingEntityMixin",
     "NearestAttackableTargetGoalMixin",
+    "PercentTooltipMixin",
     "PlayerMixin",
+    "PotionPercentTooltipMixin",
     "ProjectileMixin",
     "ServerLevelMixin",
     "ThrownTridentMixin"
