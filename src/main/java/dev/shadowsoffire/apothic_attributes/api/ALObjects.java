@@ -71,7 +71,8 @@ public class ALObjects {
          * <p>
          * Not related to vanilla (jump) critical strikes.
          */
-        public static final Holder<Attribute> CRIT_CHANCE = R.attribute("crit_chance", () -> new PercentageAttribute("apothic_attributes:crit_chance", 0.05D, 0.0D, 10.0D).setSyncable(true));
+        // Gameoverse: default 0 (upstream 0.05). The server already has a separate 5% baseline crit; this chance comes only from gear.
+        public static final Holder<Attribute> CRIT_CHANCE = R.attribute("crit_chance", () -> new PercentageAttribute("apothic_attributes:crit_chance", 0.0D, 0.0D, 10.0D).setSyncable(true));
 
         /**
          * Amount of damage caused by critical strikes. Base value = (1.5) = 150% normal damage dealt.
