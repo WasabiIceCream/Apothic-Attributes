@@ -2,7 +2,7 @@
 
 Fork of `github.com/Shadows-of-Fire/Apothic-Attributes` (branch `26.1`, 3.0.1, MIT code; the art in
 `assets/` is "All Rights Reserved" per upstream's LICENSE_ASSETS) ported to Fabric for 26.1.2.
-Branch `fabric-26.1`; `origin` push URL disabled. Needs our `placebo-fabric` 0.1.1+ (config system).
+Branch `fabric-26.1`; `origin` push URL disabled; published at `github.com/WasabiIceCream/Apothic-Attributes` (remote `wasabi`). Needs our `placebo-fabric` 0.1.1+ (config system).
 Built for our Apotheosis port: 15 of Apotheosis's 21 gems and 24 of its affixes need these attributes.
 
 ## What's ported (first version)
