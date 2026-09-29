@@ -45,7 +45,7 @@ public class AuxDmgTracker {
      * If you use this, you do not need to manually call {@link #start(LivingEntity)} and {@link #end(LivingEntity)}.
      */
     public static void executeWith(LivingEntity entity, Consumer<AuxDmgTracker> consumer) {
-        AuxDmgTracker tracker = entity.getData(ALObjects.Attachments.AUX_DMG_TRACKER);
+        AuxDmgTracker tracker = entity.getAttachedOrCreate(ALObjects.Attachments.AUX_DMG_TRACKER);
         tracker.start(entity);
         try {
             consumer.accept(tracker);
@@ -156,7 +156,7 @@ public class AuxDmgTracker {
      * PlayerMixin is responsible for raising apoth.hit_by_sweep_attack.
      */
     private static float modifyDamage(LivingEntity attacker, LivingEntity target, float damage) {
-        if (target.getPersistentData().getBooleanOr("apoth.hit_by_sweep_attack", false) && attacker.getAttributes().hasAttribute(Attributes.SWEEPING_DAMAGE_RATIO)) {
+        if (Boolean.TRUE.equals(target.getAttached(ALObjects.Attachments.HIT_BY_SWEEP_ATTACK)) && attacker.getAttributes().hasAttribute(Attributes.SWEEPING_DAMAGE_RATIO)) {
             float realDmg = Math.min(damage, 1 + (float) attacker.getAttributeValue(Attributes.SWEEPING_DAMAGE_RATIO) * damage);
             debugLog("Sweep attack detected. Modifying damage for {} from {} to {}.", attacker, damage, realDmg);
             return realDmg;

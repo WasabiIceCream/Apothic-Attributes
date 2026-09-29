@@ -1,6 +1,12 @@
 {
   "replace": false,
   "values": [
+    "minecraft:magic",
+    "minecraft:indirect_magic",
+    "minecraft:thorns",
+    "minecraft:dragon_breath",
+    "#neoforge:is_poison",
+    "#neoforge:is_wither",
     "apothic_attributes:detonation",
     "apothic_attributes:fire_damage",
     "apothic_attributes:cold_damage"

@@ -11,7 +11,8 @@ public class KnowledgeEffect extends MobEffect {
 
     public KnowledgeEffect() {
         super(MobEffectCategory.BENEFICIAL, 0xF4EE42);
-        this.addAttributeModifier(ALObjects.Attributes.EXPERIENCE_GAINED, ApothicAttributes.loc("ancient_knowledge"), Operation.ADD_MULTIPLIED_TOTAL, amp -> ALConfig.knowledgeMultiplier * (amp + 1));
+        // Port note: vanilla's per-level modifier is amount * (level + 1), the same as upstream's NeoForge function; the multiplier is read once at registration.
+        this.addAttributeModifier(ALObjects.Attributes.EXPERIENCE_GAINED, ApothicAttributes.loc("ancient_knowledge"), ALConfig.knowledgeMultiplier, Operation.ADD_MULTIPLIED_TOTAL);
     }
 
 }

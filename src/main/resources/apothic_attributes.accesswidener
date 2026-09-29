@@ -1,0 +1,9 @@
+accessWidener v2 official
+# Converted from upstream's META-INF/accesstransformer.cfg (the three GUI entries are deferred with the GUI).
+accessible field net/minecraft/world/entity/projectile/arrow/AbstractArrow piercingIgnoreEntityIds Lit/unimi/dsi/fastutil/ints/IntOpenHashSet;
+mutable field net/minecraft/world/entity/projectile/arrow/AbstractArrow piercingIgnoreEntityIds Lit/unimi/dsi/fastutil/ints/IntOpenHashSet;
+accessible field net/minecraft/world/entity/projectile/arrow/AbstractArrow baseDamage D
+accessible field net/minecraft/world/effect/MobEffect attributeModifiers Ljava/util/Map;
+accessible field net/minecraft/world/entity/LivingEntity lastHurt F
+accessible method net/minecraft/world/entity/ai/attributes/AttributeInstance getModifiers (Lnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;)Ljava/util/Map;
+accessible method net/minecraft/client/particle/CritParticle <init> (Lnet/minecraft/client/multiplayer/ClientLevel;DDDDDDLnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V

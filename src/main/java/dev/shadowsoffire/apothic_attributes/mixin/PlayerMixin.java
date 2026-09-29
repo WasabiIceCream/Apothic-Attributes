@@ -12,7 +12,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import dev.shadowsoffire.apothic_attributes.api.ALObjects;
+import dev.shadowsoffire.apothic_attributes.impl.AttributeEvents;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(value = Player.class, remap = false)
 public class PlayerMixin {
@@ -27,18 +30,18 @@ public class PlayerMixin {
     @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"), method = "attack(Lnet/minecraft/world/entity/Entity;)V", require = 1)
     private static boolean apoth_handleKilledByAuxDmg(Entity target, DamageSource src, float dmg, Operation<Boolean> wrapped) {
         boolean res = wrapped.call(target, src, dmg);
-        return res || target.getPersistentData().getBooleanOr("apoth.killed_by_aux_dmg", false);
+        return res || Boolean.TRUE.equals(target.getAttached(ALObjects.Attachments.KILLED_BY_AUX_DMG));
     }
 
     /**
      * Raises a flag on the target entity while vanilla's sweep-attack block is calling {@link LivingEntity#hurtServer(ServerLevel, DamageSource, float)}
      * so we can modify aux damage based on the value of {@link Attributes#SWEEPING_DAMAGE_RATIO}.
      */
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"), method = "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;FLnet/minecraft/world/phys/AABB;)V", require = 1)
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"), method = "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V", require = 1)
     private boolean apoth_markSweepAttacks(LivingEntity target, ServerLevel level, DamageSource src, float dmg, Operation<Boolean> wrapped) {
-        target.getPersistentData().putBoolean("apoth.hit_by_sweep_attack", true);
+        target.setAttached(ALObjects.Attachments.HIT_BY_SWEEP_ATTACK, true);
         boolean res = wrapped.call(target, level, src, dmg);
-        target.getPersistentData().remove("apoth.hit_by_sweep_attack");
+        target.removeAttached(ALObjects.Attachments.HIT_BY_SWEEP_ATTACK);
         return res;
     }
 
@@ -53,5 +56,13 @@ public class PlayerMixin {
     @WrapOperation(method = "maybeBackOffFromEdge", at = @At(value = "INVOKE", target = "maxUpStep()F"))
     private float apoth_dontFallOffACliff(Player player, Operation<Float> original) {
         return Math.min(original.call(player), 0.6F);
+    }
+
+    /**
+     * CriticalHitEvent: vanilla's critical strike multiplier (1.5) becomes at least the attacker's Crit Damage.
+     */
+    @ModifyConstant(method = "attack(Lnet/minecraft/world/entity/Entity;)V", constant = @Constant(floatValue = 1.5F))
+    private float apoth_vanillaCritDmg(float multiplier) {
+        return AttributeEvents.vanillaCritDmg((net.minecraft.world.entity.player.Player) (Object) this, multiplier);
     }
 }

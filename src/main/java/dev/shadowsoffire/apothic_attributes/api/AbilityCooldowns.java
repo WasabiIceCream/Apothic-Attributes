@@ -22,7 +22,7 @@ public final class AbilityCooldowns {
      */
     public static boolean isOnCooldown(LivingEntity entity, Identifier id, int baseCooldown) {
         int effective = applyCDR(entity, baseCooldown);
-        CooldownTracker tracker = entity.getData(ALObjects.Attachments.COOLDOWNS);
+        CooldownTracker tracker = entity.getAttachedOrCreate(ALObjects.Attachments.COOLDOWNS);
         return tracker.isOnCooldown(id, effective, entity.level().getGameTime());
     }
 
@@ -31,9 +31,9 @@ public final class AbilityCooldowns {
      */
     public static void startCooldown(LivingEntity entity, Identifier id) {
         long gameTime = entity.level().getGameTime();
-        CooldownTracker tracker = entity.getData(ALObjects.Attachments.COOLDOWNS);
+        CooldownTracker tracker = entity.getAttachedOrCreate(ALObjects.Attachments.COOLDOWNS);
         tracker.startCooldown(id, gameTime);
-        entity.setData(ALObjects.Attachments.COOLDOWNS, tracker);
+        entity.setAttached(ALObjects.Attachments.COOLDOWNS, tracker);
     }
 
     /**
@@ -41,7 +41,7 @@ public final class AbilityCooldowns {
      */
     public static long getRemaining(LivingEntity entity, Identifier id, int baseCooldown) {
         int effective = applyCDR(entity, baseCooldown);
-        CooldownTracker tracker = entity.getData(ALObjects.Attachments.COOLDOWNS);
+        CooldownTracker tracker = entity.getAttachedOrCreate(ALObjects.Attachments.COOLDOWNS);
         return tracker.getRemaining(id, effective, entity.level().getGameTime());
     }
 
@@ -59,8 +59,8 @@ public final class AbilityCooldowns {
      * Clears the cooldown entry for {@code id} on {@code entity}, if present.
      */
     public static void clear(LivingEntity entity, Identifier id) {
-        CooldownTracker tracker = entity.getData(ALObjects.Attachments.COOLDOWNS);
+        CooldownTracker tracker = entity.getAttachedOrCreate(ALObjects.Attachments.COOLDOWNS);
         tracker.clear(id);
-        entity.setData(ALObjects.Attachments.COOLDOWNS, tracker);
+        entity.setAttached(ALObjects.Attachments.COOLDOWNS, tracker);
     }
 }

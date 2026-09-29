@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "apothic_attributes",
+  "version": "${version}",
+
+  "name": "Apothic Attributes",
+  "description": "Unofficial Fabric port of Apothic Attributes (crit, dodge, life steal, armor/protection pierce and shred, elemental damage and more). Original mod by Shadows_of_Fire for NeoForge.",
+  "authors": [
+    "Shadows_of_Fire (original NeoForge mod)"
+  ],
+  "contact": {
+    "sources": "https://github.com/Shadows-of-Fire/Apothic-Attributes"
+  },
+
+  "license": "MIT",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.shadowsoffire.apothic_attributes.ApothicAttributes"
+    ],
+    "client": [
+      "dev.shadowsoffire.apothic_attributes.client.AttributesLibClient"
+    ]
+  },
+  "mixins": [
+    "apothic_attributes.mixins.json"
+  ],
+  "accessWidener": "apothic_attributes.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "fabric-api": "*",
+    "minecraft": ">=26.1",
+    "java": ">=25",
+    "placebo": "*"
+  },
+  "provides": [
+    "attributeslib"
+  ]
+}

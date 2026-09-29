@@ -2,29 +2,24 @@ package dev.shadowsoffire.apothic_attributes.api;
 
 import static dev.shadowsoffire.apothic_attributes.ApothicAttributes.R;
 
-import java.util.function.Supplier;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
+
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 
 import dev.shadowsoffire.apothic_attributes.ApothicAttributes;
 import dev.shadowsoffire.apothic_attributes.mob_effect.BleedingEffect;
 import dev.shadowsoffire.apothic_attributes.mob_effect.DetonationEffect;
-import dev.shadowsoffire.apothic_attributes.mob_effect.FlyingEffect;
 import dev.shadowsoffire.apothic_attributes.mob_effect.GrievousEffect;
 import dev.shadowsoffire.apothic_attributes.mob_effect.KnowledgeEffect;
 import dev.shadowsoffire.apothic_attributes.mob_effect.SunderingEffect;
 import dev.shadowsoffire.apothic_attributes.mob_effect.VitalityEffect;
-import dev.shadowsoffire.apothic_attributes.modifiers.EntityEquipmentSlot;
-import dev.shadowsoffire.apothic_attributes.modifiers.EntitySlotGroup;
-import dev.shadowsoffire.apothic_attributes.modifiers.StackAttributeModifiers;
-import dev.shadowsoffire.apothic_attributes.modifiers.VanillaEquipmentSlot;
 import dev.shadowsoffire.apothic_attributes.util.AuxDmgTracker;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -34,30 +29,13 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.common.BooleanAttribute;
-import net.neoforged.neoforge.common.PercentageAttribute;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
-import net.neoforged.neoforge.registries.holdersets.AnyHolderSet;
 
 public class ALObjects {
 
-    public static class BuiltInRegs {
-
-        public static final Registry<EntityEquipmentSlot> ENTITY_EQUIPMENT_SLOT = R.registry("entity_equipment_slot", c -> c.sync(true));
-        public static final Registry<EntitySlotGroup> ENTITY_SLOT_GROUP = R.registry("entity_slot_group", c -> c.sync(true));
-
-        private static void bootstrap() {}
-    }
 
     public static class Attributes {
 
@@ -220,14 +198,13 @@ public class ALObjects {
         /**
          * Grants Creative Flight
          */
-        public static final Holder<MobEffect> FLYING = R.effect("flying", FlyingEffect::new);
 
         private static void bootstrap() {}
     }
 
     public static class Particles {
 
-        public static final Supplier<SimpleParticleType> APOTH_CRIT = R.particle("apoth_crit", () -> new SimpleParticleType(false));
+        public static final SimpleParticleType APOTH_CRIT = R.simpleParticle("apoth_crit", false);
 
         private static void bootstrap() {}
 
@@ -272,91 +249,27 @@ public class ALObjects {
         private static void bootstrap() {}
     }
 
-    public static final class Potions {
-        public static final Holder<Potion> RESISTANCE = R.singlePotion("resistance", () -> new MobEffectInstance(MobEffects.RESISTANCE, 3600));
-        public static final Holder<Potion> LONG_RESISTANCE = R.singlePotion("long_resistance", () -> new MobEffectInstance(MobEffects.RESISTANCE, 9600));
-        public static final Holder<Potion> STRONG_RESISTANCE = R.singlePotion("strong_resistance", () -> new MobEffectInstance(MobEffects.RESISTANCE, 1800, 1));
 
-        public static final Holder<Potion> ABSORPTION = R.singlePotion("absorption", () -> new MobEffectInstance(MobEffects.ABSORPTION, 1200, 1));
-        public static final Holder<Potion> LONG_ABSORPTION = R.singlePotion("long_absorption", () -> new MobEffectInstance(MobEffects.ABSORPTION, 3600, 1));
-        public static final Holder<Potion> STRONG_ABSORPTION = R.singlePotion("strong_absorption", () -> new MobEffectInstance(MobEffects.ABSORPTION, 600, 3));
-
-        public static final Holder<Potion> HASTE = R.singlePotion("haste", () -> new MobEffectInstance(MobEffects.HASTE, 3600));
-        public static final Holder<Potion> LONG_HASTE = R.singlePotion("long_haste", () -> new MobEffectInstance(MobEffects.HASTE, 9600));
-        public static final Holder<Potion> STRONG_HASTE = R.singlePotion("strong_haste", () -> new MobEffectInstance(MobEffects.HASTE, 1800, 1));
-
-        public static final Holder<Potion> FATIGUE = R.singlePotion("fatigue", () -> new MobEffectInstance(MobEffects.MINING_FATIGUE, 3600));
-        public static final Holder<Potion> LONG_FATIGUE = R.singlePotion("long_fatigue", () -> new MobEffectInstance(MobEffects.MINING_FATIGUE, 9600));
-        public static final Holder<Potion> STRONG_FATIGUE = R.singlePotion("strong_fatigue", () -> new MobEffectInstance(MobEffects.MINING_FATIGUE, 1800, 1));
-
-        public static final Holder<Potion> WITHER = R.singlePotion("wither", () -> new MobEffectInstance(MobEffects.WITHER, 3600));
-        public static final Holder<Potion> LONG_WITHER = R.singlePotion("long_wither", () -> new MobEffectInstance(MobEffects.WITHER, 9600));
-        public static final Holder<Potion> STRONG_WITHER = R.singlePotion("strong_wither", () -> new MobEffectInstance(MobEffects.WITHER, 1800, 1));
-
-        public static final Holder<Potion> SUNDERING = R.singlePotion("sundering", () -> new MobEffectInstance(MobEffects.SUNDERING, 3600));
-        public static final Holder<Potion> LONG_SUNDERING = R.singlePotion("long_sundering", () -> new MobEffectInstance(MobEffects.SUNDERING, 9600));
-        public static final Holder<Potion> STRONG_SUNDERING = R.singlePotion("strong_sundering", () -> new MobEffectInstance(MobEffects.SUNDERING, 1800, 1));
-
-        public static final Holder<Potion> KNOWLEDGE = R.singlePotion("knowledge", () -> new MobEffectInstance(MobEffects.KNOWLEDGE, 2400));
-        public static final Holder<Potion> LONG_KNOWLEDGE = R.singlePotion("long_knowledge", () -> new MobEffectInstance(ALObjects.MobEffects.KNOWLEDGE, 4800));
-        public static final Holder<Potion> STRONG_KNOWLEDGE = R.singlePotion("strong_knowledge", () -> new MobEffectInstance(ALObjects.MobEffects.KNOWLEDGE, 1200, 3));
-
-        public static final Holder<Potion> VITALITY = R.singlePotion("vitality", () -> new MobEffectInstance(ALObjects.MobEffects.VITALITY, 4800));
-        public static final Holder<Potion> LONG_VITALITY = R.singlePotion("long_vitality", () -> new MobEffectInstance(ALObjects.MobEffects.VITALITY, 14400));
-        public static final Holder<Potion> STRONG_VITALITY = R.singlePotion("strong_vitality", () -> new MobEffectInstance(ALObjects.MobEffects.VITALITY, 3600, 1));
-
-        public static final Holder<Potion> GRIEVOUS = R.singlePotion("grievous", () -> new MobEffectInstance(MobEffects.GRIEVOUS, 4800));
-        public static final Holder<Potion> LONG_GRIEVOUS = R.singlePotion("long_grievous", () -> new MobEffectInstance(MobEffects.GRIEVOUS, 14400));
-        public static final Holder<Potion> STRONG_GRIEVOUS = R.singlePotion("strong_grievous", () -> new MobEffectInstance(MobEffects.GRIEVOUS, 3600, 1));
-
-        public static final Holder<Potion> LEVITATION = R.singlePotion("levitation", () -> new MobEffectInstance(MobEffects.LEVITATION, 2400));
-
-        public static final Holder<Potion> FLYING = R.singlePotion("flying", () -> new MobEffectInstance(MobEffects.FLYING, 9600));
-        public static final Holder<Potion> LONG_FLYING = R.singlePotion("long_flying", () -> new MobEffectInstance(MobEffects.FLYING, 18000));
-        public static final Holder<Potion> EXTRA_LONG_FLYING = R.singlePotion("extra_long_flying", () -> new MobEffectInstance(MobEffects.FLYING, 36000));
-
-        private static void bootstrap() {}
-    }
-
-    public static class Components {
-
-        /**
-         * @deprecated Prefer {@link #BONUS_STACK_ATTRIBUTE_MODIFIERS}.
-         */
-        @Deprecated(forRemoval = true)
-        public static final DataComponentType<ItemAttributeModifiers> BONUS_ATTRIBUTE_MODIFIERS = R.component("bonus_attribute_modifiers",
-            builder -> builder.persistent(ItemAttributeModifiers.CODEC).networkSynchronized(ItemAttributeModifiers.STREAM_CODEC).cacheEncoding());
-
-        public static final DataComponentType<StackAttributeModifiers> BONUS_STACK_ATTRIBUTE_MODIFIERS = R.component("bonus_stack_attribute_modifiers",
-            builder -> builder.persistent(StackAttributeModifiers.CODEC).networkSynchronized(StackAttributeModifiers.STREAM_CODEC).cacheEncoding());
-
-        private static void bootstrap() {}
-    }
 
     public static class Attachments {
 
-        /**
-         * Records the amount of health an entity had during the {@link LivingDamageEvent.Pre} for use in {@link LivingDamageEvent.Post}.
-         * <p>
-         * This allows effects to be computed based on the actual amount of damage taken.
-         */
-        public static final AttachmentType<Float> PRE_DAMAGE_HEALTH = R.attachment("pre_damage_health", (holder) -> 0F, b -> b);
+        /** Health right before damage is applied, read by life steal. Not saved. */
+        public static final AttachmentType<Float> PRE_DAMAGE_HEALTH = AttachmentRegistry.create(ApothicAttributes.loc("pre_damage_health"));
 
-        /**
-         * Records invulnerability times and last hurt amounts for the auxiliary damage types.
-         * <p>
-         * This allows us to keep track of these damages on their own, without merging them with other damage types.
-         */
-        public static final AttachmentType<AuxDmgTracker> AUX_DMG_TRACKER = R.attachment("aux_dmg_tracker", () -> new AuxDmgTracker(), b -> b
-            .serialize(MapCodec.assumeMapUnsafe(AuxDmgTracker.CODEC)));
+        public static final AttachmentType<AuxDmgTracker> AUX_DMG_TRACKER = AttachmentRegistry.create(ApothicAttributes.loc("aux_dmg_tracker"),
+            b -> b.initializer(AuxDmgTracker::new).persistent(AuxDmgTracker.CODEC));
 
-        /**
-         * Per-entity map of cooldown timestamps for {@link AbilityCooldowns}. Survives death so consumed-on-trigger abilities don't reset on respawn.
-         */
-        public static final AttachmentType<CooldownTracker> COOLDOWNS = R.attachment("cooldowns", () -> new CooldownTracker(), b -> b
-            .serialize(CooldownTracker.CODEC)
-            .sync((tracker, player) -> true, CooldownTracker.STREAM_CODEC)
-            .copyOnDeath());
+        public static final AttachmentType<CooldownTracker> COOLDOWNS = AttachmentRegistry.create(ApothicAttributes.loc("cooldowns"),
+            b -> b.initializer(CooldownTracker::new)
+                .persistent(CooldownTracker.CODEC.codec())
+                .syncWith(CooldownTracker.STREAM_CODEC, AttachmentSyncPredicate.targetOnly())
+                .copyOnDeath());
+
+        /** Replaces upstream's "apoth.killed_by_aux_dmg" persistent-data flag (read by PlayerMixin). Not saved. */
+        public static final AttachmentType<Boolean> KILLED_BY_AUX_DMG = AttachmentRegistry.create(ApothicAttributes.loc("killed_by_aux_dmg"));
+
+        /** Replaces upstream's "apoth.hit_by_sweep_attack" persistent-data flag. Not saved. */
+        public static final AttachmentType<Boolean> HIT_BY_SWEEP_ATTACK = AttachmentRegistry.create(ApothicAttributes.loc("hit_by_sweep_attack"));
 
         private static void bootstrap() {}
     }
@@ -380,75 +293,23 @@ public class ALObjects {
          * Damage Types with this tag are immune from any processing by {@link Attributes#CRIT_CHANCE} and {@link Attributes#CRIT_DAMAGE}.
          */
         public static final TagKey<DamageType> CANNOT_CRITICALLY_STRIKE = TagKey.create(Registries.DAMAGE_TYPE, ApothicAttributes.loc("cannot_critically_strike"));
-    }
-
-    @ApiStatus.Experimental
-    public static class EquipmentSlots {
-        public static final Holder<EntityEquipmentSlot> MAINHAND = slot(EquipmentSlot.MAINHAND);
-        public static final Holder<EntityEquipmentSlot> OFFHAND = slot(EquipmentSlot.OFFHAND);
-        public static final Holder<EntityEquipmentSlot> HEAD = slot(EquipmentSlot.HEAD);
-        public static final Holder<EntityEquipmentSlot> CHEST = slot(EquipmentSlot.CHEST);
-        public static final Holder<EntityEquipmentSlot> LEGS = slot(EquipmentSlot.LEGS);
-        public static final Holder<EntityEquipmentSlot> FEET = slot(EquipmentSlot.FEET);
-        public static final Holder<EntityEquipmentSlot> BODY = slot(EquipmentSlot.BODY);
-        public static final Holder<EntityEquipmentSlot> SADDLE = slot(EquipmentSlot.SADDLE);
-
-        private static Holder<EntityEquipmentSlot> slot(EquipmentSlot slot) {
-            return R.customDH(slot.getSerializedName(), BuiltInRegs.ENTITY_EQUIPMENT_SLOT.key(), () -> new VanillaEquipmentSlot(slot));
-        }
-
-        private static void bootstrap() {}
-    }
-
-    @ApiStatus.Experimental
-    public static class EquipmentSlotGroups {
-        /**
-         * True "any" slot group. Matches any registered {@link EntityEquipmentSlot}.
-         */
-        public static final EntitySlotGroup ANY = group("any", new AnyHolderSet<>(BuiltInRegs.ENTITY_EQUIPMENT_SLOT));
 
         /**
-         * Vanilla "any" slot group, corresponding to {@link EquipmentSlotGroup#ANY}.
+         * NeoForge's physical damage tag. NeoForge ships its base content; on Fabric this mod ships it (with NeoForge's defaults) under the
+         * same id, so datapacks written for NeoForge keep working.
          */
-        public static final EntitySlotGroup ANY_VANILLA = group("any_vanilla", HolderSet.direct(
-            EquipmentSlots.MAINHAND, EquipmentSlots.OFFHAND, EquipmentSlots.HEAD,
-            EquipmentSlots.CHEST, EquipmentSlots.LEGS, EquipmentSlots.FEET, EquipmentSlots.BODY));
-
-        public static final EntitySlotGroup MAINHAND = group("mainhand", HolderSet.direct(EquipmentSlots.MAINHAND));
-        public static final EntitySlotGroup OFFHAND = group("offhand", HolderSet.direct(EquipmentSlots.OFFHAND));
-        public static final EntitySlotGroup HAND = group("hand", HolderSet.direct(EquipmentSlots.MAINHAND, EquipmentSlots.OFFHAND)); // TODO: Tag key for this?
-        public static final EntitySlotGroup HEAD = group("head", HolderSet.direct(EquipmentSlots.HEAD));
-        public static final EntitySlotGroup CHEST = group("chest", HolderSet.direct(EquipmentSlots.CHEST));
-        public static final EntitySlotGroup LEGS = group("legs", HolderSet.direct(EquipmentSlots.LEGS));
-        public static final EntitySlotGroup FEET = group("feet", HolderSet.direct(EquipmentSlots.FEET));
-        public static final EntitySlotGroup ARMOR = group("armor", HolderSet.direct(EquipmentSlots.HEAD, EquipmentSlots.CHEST, EquipmentSlots.LEGS, EquipmentSlots.FEET));
-        public static final EntitySlotGroup BODY = group("body", HolderSet.direct(EquipmentSlots.BODY));
-        public static final EntitySlotGroup SADDLE = group("saddle", HolderSet.direct(EquipmentSlots.SADDLE));
-
-        private static Identifier id(String path) {
-            return ApothicAttributes.loc(path);
-        }
-
-        private static EntitySlotGroup group(String path, HolderSet<EntityEquipmentSlot> slots) {
-            return R.custom(path, BuiltInRegs.ENTITY_SLOT_GROUP.key(), new EntitySlotGroup(id(path), slots));
-        }
-
-        private static void bootstrap() {}
+        public static final TagKey<DamageType> IS_PHYSICAL = TagKey.create(Registries.DAMAGE_TYPE, net.minecraft.resources.Identifier.fromNamespaceAndPath("neoforge", "is_physical"));
     }
+
+
 
     @ApiStatus.Internal
-    public static void bootstrap(IEventBus bus) {
-        BuiltInRegs.bootstrap();
+    public static void bootstrap() {
         Attributes.bootstrap();
         MobEffects.bootstrap();
         Particles.bootstrap();
         Sounds.bootstrap();
         DamageTypes.bootstrap();
-        Potions.bootstrap();
-        Components.bootstrap();
         Attachments.bootstrap();
-        EquipmentSlots.bootstrap();
-        EquipmentSlotGroups.bootstrap();
-        bus.register(R);
     }
 }

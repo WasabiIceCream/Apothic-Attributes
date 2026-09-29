@@ -1,19 +1,17 @@
 package dev.shadowsoffire.apothic_attributes.payload;
 
-import java.util.List;
 import java.util.Optional;
 
 import dev.shadowsoffire.apothic_attributes.ALConfig;
 import dev.shadowsoffire.apothic_attributes.ApothicAttributes;
 import dev.shadowsoffire.placebo.network.PayloadProvider;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 public record ConfigPayload(float knowledgeMultiplier) implements CustomPacketPayload {
 
@@ -45,23 +43,13 @@ public record ConfigPayload(float knowledgeMultiplier) implements CustomPacketPa
         }
 
         @Override
-        public void handleClient(ConfigPayload msg, IPayloadContext ctx) {
+        public void handleClient(ConfigPayload msg, ClientPlayNetworking.Context ctx) {
             ALConfig.knowledgeMultiplier = msg.knowledgeMultiplier;
-        }
-
-        @Override
-        public List<ConnectionProtocol> getSupportedProtocols() {
-            return List.of(ConnectionProtocol.PLAY);
         }
 
         @Override
         public Optional<PacketFlow> getFlow() {
             return Optional.of(PacketFlow.CLIENTBOUND);
-        }
-
-        @Override
-        public String getVersion() {
-            return "1";
         }
 
     }

@@ -7,13 +7,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.neoforged.neoforge.common.NeoForgeMod;
 
 @Mixin(value = Entity.class, remap = false)
 public abstract class EntityMixin {
 
     /**
-     * Causes {@link NeoForgeMod#ENTITY_GRAVITY} to reduce fall damage, equal to the deviation between the current gravity value and the default of 0.08.
+     * Causes the gravity attribute to reduce fall damage, equal to the deviation between the current gravity value and the default of 0.08.
      */
     @ModifyVariable(at = @At("HEAD"), method = "checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V", argsOnly = true)
     public double apoth_checkFallDamageWithGravity(double yMotion) {

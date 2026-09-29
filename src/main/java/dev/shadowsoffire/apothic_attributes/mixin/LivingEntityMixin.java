@@ -1,7 +1,6 @@
 package dev.shadowsoffire.apothic_attributes.mixin;
 
 import java.util.List;
-import java.util.Stack;
 
 import javax.annotation.Nullable;
 
@@ -33,14 +32,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.neoforged.neoforge.common.damagesource.DamageContainer;
 
 @Mixin(value = LivingEntity.class, remap = false)
 public abstract class LivingEntityMixin extends Entity implements LEInvoker {
-
-    @Shadow
-    @Nullable
-    protected Stack<DamageContainer> damageContainers;
 
     public LivingEntityMixin(EntityType<?> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -61,11 +55,7 @@ public abstract class LivingEntityMixin extends Entity implements LEInvoker {
             value += damage * level * 0.2F;
         }
 
-        // The return value of getDamageAfterMagicAbsorb is ignored, so we have to manipulate the damage container directly.
-        float dmg = this.damageContainers.peek().getNewDamage();
-        if (value >= dmg) {
-            this.damageContainers.peek().setNewDamage(value);
-        }
+        // Port note: NeoForge ignores this method's return value and reads its damage container instead; vanilla uses the return value, so nothing more is needed.
 
         return Math.max(value, max);
     }
