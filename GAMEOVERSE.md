@@ -129,8 +129,8 @@ whose value is NaN are hidden, and `AttributesGui.addHiddenFilter` lets another 
 ### Test steps (3.0.1-fabric.6 + Placebo 0.1.3)
 Server/RCON: `/give @p minecraft:potion[potion_contents={potion:"apothic_attributes:wither"}]` (and `sundering`,
 `strong_knowledge`, `vitality`, `grievous`, `haste`, `resistance`); boot log: `Registered 34 placebo:brewing_mixes`, no
-`brewing_mixes` errors. Brewing stand: Awkward + Wither Skeleton Skull -> Potion of Decay (Wither); Awkward + Sweet
-Berries -> Vitality; Vitality + Fermented Spider Eye -> Grievous; check JEI's brewing category for doubled recipes.
+`brewing_mixes` errors. Brewing stand: Awkward + Wither Skeleton Skull -> Potion of Wither; Awkward + Sweet
+Berries -> Potion of Healing Boost; that + Fermented Spider Eye -> Potion of Healing Reduction; check JEI's brewing category for doubled recipes.
 Ancient Knowledge: `/effect give @p apothic_attributes:knowledge 60 1`, then `/attribute @p
 apothic_attributes:experience_gained get` -> 9 (1 x (1 + 4 x 2)). Client: open the inventory, click the sword button
 on the player preview; the panel lists attributes with values, hover shows modifiers with item/effect icons and the
