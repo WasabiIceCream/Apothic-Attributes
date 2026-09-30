@@ -17,7 +17,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.util.AttributeUtil;
 
 /**
  * A Modifier Source Type is a the registration component of a ModifierSource.
@@ -52,8 +51,9 @@ public abstract class ModifierSourceType<T> {
         @Override
         public void extract(LivingEntity entity, BiConsumer<AttributeModifier, ModifierSource<?>> map) {
             for (MobEffectInstance effectInst : entity.getActiveEffects()) {
-                effectInst.getEffect().value().attributeModifiers.values().forEach(template -> {
-                    map.accept(template.create(effectInst.getAmplifier()), new EffectModifierSource(effectInst));
+                // Port note: createModifiers (not the raw templates), so effects that compute their modifiers (Ancient Knowledge) show what they apply.
+                effectInst.getEffect().value().createModifiers(effectInst.getAmplifier(), (attr, modif) -> {
+                    map.accept(modif, new EffectModifierSource(effectInst));
                 });
             }
         }
@@ -79,7 +79,7 @@ public abstract class ModifierSourceType<T> {
         Comparator<AttributeModifier> comp = Comparators.chained(
             Comparator.comparingInt(a -> sources.get(a.id()).getType().getPriority()),
             Comparator.comparing(a -> sources.get(a.id())),
-            AttributeUtil.ATTRIBUTE_MODIFIER_COMPARATOR);
+            AttributeDisplay.MODIFIER_COMPARATOR);
 
         return (a1, a2) -> {
             var src1 = sources.get(a1.id());

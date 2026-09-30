@@ -15,6 +15,7 @@ import org.joml.Matrix3x2fStack;
 import dev.shadowsoffire.apothic_attributes.ALConfig;
 import dev.shadowsoffire.apothic_attributes.ApothicAttributes;
 import dev.shadowsoffire.apothic_attributes.api.ALObjects;
+import dev.shadowsoffire.apothic_attributes.api.BooleanAttribute;
 import dev.shadowsoffire.placebo.PlaceboClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -51,9 +52,17 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.TooltipFlag;
-import net.neoforged.neoforge.common.BooleanAttribute;
-import net.neoforged.neoforge.common.extensions.IAttributeExtension;
 
+/**
+ * The Attributes GUI: a panel beside the inventory listing the player's attributes, their modifiers and where each comes
+ * from.
+ * <p>
+ * Port note (NeoForge -> Fabric): upstream adds this to the inventory screen as a child widget from NeoForge's
+ * {@code ScreenEvent.Init.Post}. Here {@link AttributesLibClient} draws it from Fabric's screen render event and feeds it
+ * mouse clicks, drags and scrolls through Fabric's screen mouse events; the two buttons are ordinary screen widgets.
+ * Attribute values and modifier lines are formatted by {@link AttributeDisplay} (NeoForge's attribute extension methods
+ * don't exist on Fabric).
+ */
 public class AttributesGui implements Renderable, GuiEventListener {
 
     public static final Identifier TEXTURES = ApothicAttributes.loc("textures/gui/attributes_gui.png");
@@ -91,8 +100,8 @@ public class AttributesGui implements Renderable, GuiEventListener {
         this.parent = parent;
         this.player = Minecraft.getInstance().player;
         this.refreshData();
-        this.leftPos = parent.getLeftPos() - WIDTH;
-        this.topPos = parent.getTopPos();
+        this.leftPos = parent.leftPos - WIDTH;
+        this.topPos = parent.topPos;
         this.toggleBtn = new ImageButton(0, 0, 10, 10, SWORD_BUTTON_SPRITES, btn -> {
             this.toggleVisibility();
         }, Component.translatable("apothic_attributes.gui.show_attributes")){
@@ -105,7 +114,7 @@ public class AttributesGui implements Renderable, GuiEventListener {
         }
         else this.recipeBookButton = null;
         this.hideUnchangedBtn = new HideUnchangedButton(0, 0);
-        ButtonPlacement.positionGuiButton(toggleBtn, ALConfig.attributesGuiButtonOffset, parent.getLeftPos(), parent.getTopPos());
+        ButtonPlacement.positionGuiButton(toggleBtn, ALConfig.attributesGuiButtonOffset, parent.leftPos, parent.topPos);
     }
 
     @SuppressWarnings("deprecation")
@@ -119,6 +128,10 @@ public class AttributesGui implements Renderable, GuiEventListener {
             .forEach(this.data::add);
         this.data.sort(this::compareAttrs);
         this.startIndex = (int) (scrollOffset * this.getOffScreenRows() + 0.5D);
+    }
+
+    public InventoryScreen getParent() {
+        return this.parent;
     }
 
     public void toggleVisibility() {
@@ -137,10 +150,10 @@ public class AttributesGui implements Renderable, GuiEventListener {
         }
 
         this.parent.leftPos = newLeftPos;
-        this.leftPos = this.parent.getLeftPos() - WIDTH;
-        this.topPos = this.parent.getTopPos();
+        this.leftPos = this.parent.leftPos - WIDTH;
+        this.topPos = this.parent.topPos;
 
-        if (this.recipeBookButton != null) this.recipeBookButton.setPosition(this.parent.getLeftPos() + 104, this.parent.height / 2 - 22);
+        if (this.recipeBookButton != null) this.recipeBookButton.setPosition(this.parent.leftPos + 104, this.parent.height / 2 - 22);
         this.hideUnchangedBtn.setPosition(this.leftPos + 7, this.topPos + 151);
     }
 
@@ -174,7 +187,7 @@ public class AttributesGui implements Renderable, GuiEventListener {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float partialTicks) {
-        ButtonPlacement.positionGuiButton(this.toggleBtn, ALConfig.attributesGuiButtonOffset, this.parent.getLeftPos(), this.parent.getTopPos());
+        ButtonPlacement.positionGuiButton(this.toggleBtn, ALConfig.attributesGuiButtonOffset, this.parent.leftPos, this.parent.topPos);
         if (this.parent.recipeBookComponent.isVisible()) this.open = false;
         wasOpen = this.open;
         if (!this.open) return;
@@ -234,8 +247,8 @@ public class AttributesGui implements Renderable, GuiEventListener {
 
             int color = getValueColor(inst, ChatFormatting.GRAY.getColor());
 
-            Component valueComp = attr.toValueComponent(null, inst.getValue(), ApothicAttributes.getTooltipFlag()).withColor(color);
-            Component baseComp = attr.toValueComponent(null, inst.getBaseValue(), ApothicAttributes.getTooltipFlag()).withStyle(ChatFormatting.GRAY);
+            Component valueComp = AttributeDisplay.toValueComponent(attr, null, inst.getValue(), ApothicAttributes.getTooltipFlag()).withColor(color);
+            Component baseComp = AttributeDisplay.toValueComponent(attr, null, inst.getBaseValue(), ApothicAttributes.getTooltipFlag()).withStyle(ChatFormatting.GRAY);
 
             if (!isDynamic) {
                 list.add(CommonComponents.EMPTY);
@@ -244,9 +257,9 @@ public class AttributesGui implements Renderable, GuiEventListener {
                 Component base = Component.translatable("apothic_attributes.gui.base", baseComp).withStyle(ChatFormatting.GRAY);
 
                 if (attr instanceof RangedAttribute ra) {
-                    Component min = attr.toValueComponent(null, ra.getMinValue(), ApothicAttributes.getTooltipFlag());
+                    Component min = AttributeDisplay.toValueComponent(attr, null, ra.getMinValue(), ApothicAttributes.getTooltipFlag());
                     min = Component.translatable("apothic_attributes.gui.min", min);
-                    Component max = attr.toValueComponent(null, ra.getMaxValue(), ApothicAttributes.getTooltipFlag());
+                    Component max = AttributeDisplay.toValueComponent(attr, null, ra.getMaxValue(), ApothicAttributes.getTooltipFlag());
                     max = Component.translatable("apothic_attributes.gui.max", max);
                     list.add(Component.translatable("%s \u2507 %s \u2507 %s", base, min, max).withStyle(ChatFormatting.GRAY));
                 }
@@ -281,14 +294,14 @@ public class AttributesGui implements Renderable, GuiEventListener {
                     modifiers.sort(ModifierSourceType.compareBySource(modifiersToSources));
                     for (AttributeModifier modif : modifiers) {
                         if (modif.amount() != 0) {
-                            Component comp = attr.toComponent(modif, ApothicAttributes.getTooltipFlag());
+                            Component comp = AttributeDisplay.toComponent(attr, modif, ApothicAttributes.getTooltipFlag());
                             var src = modifiersToSources.get(modif.id());
                             finalTooltip.add(new AttributeModifierComponent(src, comp, this.font, this.leftPos - 16));
                         }
                     }
 
                     color = getValueColor(attr, opValue, baseValue, ChatFormatting.GRAY.getColor());
-                    Component valueComp2 = attr.toValueComponent(op, opValue, ApothicAttributes.getTooltipFlag()).withStyle(Style.EMPTY.withColor(color));
+                    Component valueComp2 = AttributeDisplay.toValueComponent(attr, op, opValue, ApothicAttributes.getTooltipFlag()).withStyle(Style.EMPTY.withColor(color));
                     MutableComponent comp = Component.translatable("apothic_attributes.gui." + op.name().toLowerCase(Locale.ROOT), valueComp2).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
 
                     opValues[op.ordinal()] = comp;
@@ -358,7 +371,7 @@ public class AttributesGui implements Renderable, GuiEventListener {
         pose.popMatrix();
         pose.pushMatrix();
 
-        MutableComponent value = inst.getAttribute().value().toValueComponent(null, inst.getValue(), TooltipFlag.Default.NORMAL);
+        MutableComponent value = AttributeDisplay.toValueComponent(inst.getAttribute().value(), null, inst.getValue(), TooltipFlag.Default.NORMAL);
 
         if (inst.getAttribute().is(ALObjects.Tags.DYNAMIC_BASE_ATTRIBUTES)) {
             value = Component.literal("\uFFFD");
@@ -451,7 +464,7 @@ public class AttributesGui implements Renderable, GuiEventListener {
         return pMouseX >= pX - 1 && pMouseX < pX + pWidth + 1 && pMouseY >= pY - 1 && pMouseY < pY + pHeight + 1;
     }
 
-    private static DecimalFormat f = IAttributeExtension.FORMAT;
+    private static DecimalFormat f = AttributeDisplay.FORMAT;
 
     public static String format(int n) {
         int log = (int) StrictMath.log10(n);

@@ -33,6 +33,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.alchemy.Potion;
 
 public class ALObjects {
 
@@ -252,6 +253,52 @@ public class ALObjects {
 
 
 
+    /**
+     * Upstream's potions. Port note: the three Flying potions are not registered (the Flying effect needs NeoForge's
+     * creative flight attribute; see GAMEOVERSE.md).
+     */
+    public static final class Potions {
+        public static final Holder<Potion> RESISTANCE = R.singlePotion("resistance", () -> new MobEffectInstance(MobEffects.RESISTANCE, 3600));
+        public static final Holder<Potion> LONG_RESISTANCE = R.singlePotion("long_resistance", () -> new MobEffectInstance(MobEffects.RESISTANCE, 9600));
+        public static final Holder<Potion> STRONG_RESISTANCE = R.singlePotion("strong_resistance", () -> new MobEffectInstance(MobEffects.RESISTANCE, 1800, 1));
+
+        public static final Holder<Potion> ABSORPTION = R.singlePotion("absorption", () -> new MobEffectInstance(MobEffects.ABSORPTION, 1200, 1));
+        public static final Holder<Potion> LONG_ABSORPTION = R.singlePotion("long_absorption", () -> new MobEffectInstance(MobEffects.ABSORPTION, 3600, 1));
+        public static final Holder<Potion> STRONG_ABSORPTION = R.singlePotion("strong_absorption", () -> new MobEffectInstance(MobEffects.ABSORPTION, 600, 3));
+
+        public static final Holder<Potion> HASTE = R.singlePotion("haste", () -> new MobEffectInstance(MobEffects.HASTE, 3600));
+        public static final Holder<Potion> LONG_HASTE = R.singlePotion("long_haste", () -> new MobEffectInstance(MobEffects.HASTE, 9600));
+        public static final Holder<Potion> STRONG_HASTE = R.singlePotion("strong_haste", () -> new MobEffectInstance(MobEffects.HASTE, 1800, 1));
+
+        public static final Holder<Potion> FATIGUE = R.singlePotion("fatigue", () -> new MobEffectInstance(MobEffects.MINING_FATIGUE, 3600));
+        public static final Holder<Potion> LONG_FATIGUE = R.singlePotion("long_fatigue", () -> new MobEffectInstance(MobEffects.MINING_FATIGUE, 9600));
+        public static final Holder<Potion> STRONG_FATIGUE = R.singlePotion("strong_fatigue", () -> new MobEffectInstance(MobEffects.MINING_FATIGUE, 1800, 1));
+
+        public static final Holder<Potion> WITHER = R.singlePotion("wither", () -> new MobEffectInstance(MobEffects.WITHER, 3600));
+        public static final Holder<Potion> LONG_WITHER = R.singlePotion("long_wither", () -> new MobEffectInstance(MobEffects.WITHER, 9600));
+        public static final Holder<Potion> STRONG_WITHER = R.singlePotion("strong_wither", () -> new MobEffectInstance(MobEffects.WITHER, 1800, 1));
+
+        public static final Holder<Potion> SUNDERING = R.singlePotion("sundering", () -> new MobEffectInstance(MobEffects.SUNDERING, 3600));
+        public static final Holder<Potion> LONG_SUNDERING = R.singlePotion("long_sundering", () -> new MobEffectInstance(MobEffects.SUNDERING, 9600));
+        public static final Holder<Potion> STRONG_SUNDERING = R.singlePotion("strong_sundering", () -> new MobEffectInstance(MobEffects.SUNDERING, 1800, 1));
+
+        public static final Holder<Potion> KNOWLEDGE = R.singlePotion("knowledge", () -> new MobEffectInstance(MobEffects.KNOWLEDGE, 2400));
+        public static final Holder<Potion> LONG_KNOWLEDGE = R.singlePotion("long_knowledge", () -> new MobEffectInstance(ALObjects.MobEffects.KNOWLEDGE, 4800));
+        public static final Holder<Potion> STRONG_KNOWLEDGE = R.singlePotion("strong_knowledge", () -> new MobEffectInstance(ALObjects.MobEffects.KNOWLEDGE, 1200, 3));
+
+        public static final Holder<Potion> VITALITY = R.singlePotion("vitality", () -> new MobEffectInstance(ALObjects.MobEffects.VITALITY, 4800));
+        public static final Holder<Potion> LONG_VITALITY = R.singlePotion("long_vitality", () -> new MobEffectInstance(ALObjects.MobEffects.VITALITY, 14400));
+        public static final Holder<Potion> STRONG_VITALITY = R.singlePotion("strong_vitality", () -> new MobEffectInstance(ALObjects.MobEffects.VITALITY, 3600, 1));
+
+        public static final Holder<Potion> GRIEVOUS = R.singlePotion("grievous", () -> new MobEffectInstance(MobEffects.GRIEVOUS, 4800));
+        public static final Holder<Potion> LONG_GRIEVOUS = R.singlePotion("long_grievous", () -> new MobEffectInstance(MobEffects.GRIEVOUS, 14400));
+        public static final Holder<Potion> STRONG_GRIEVOUS = R.singlePotion("strong_grievous", () -> new MobEffectInstance(MobEffects.GRIEVOUS, 3600, 1));
+
+        public static final Holder<Potion> LEVITATION = R.singlePotion("levitation", () -> new MobEffectInstance(MobEffects.LEVITATION, 2400));
+
+        private static void bootstrap() {}
+    }
+
     public static class Attachments {
 
         /** Health right before damage is applied, read by life steal. Not saved. */
@@ -311,6 +358,7 @@ public class ALObjects {
         Particles.bootstrap();
         Sounds.bootstrap();
         DamageTypes.bootstrap();
+        Potions.bootstrap();
         Attachments.bootstrap();
     }
 }

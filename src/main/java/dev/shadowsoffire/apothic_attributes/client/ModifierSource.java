@@ -78,7 +78,7 @@ public abstract class ModifierSource<T> implements Comparable<ModifierSource<T>>
 
         @SuppressWarnings("deprecation")
         public EffectModifierSource(MobEffectInstance data) {
-            super(ModifierSourceType.MOB_EFFECT, Comparator.comparing(inst -> inst.getEffect().unwrapKey().get(), ResourceKey::compareTo), data);
+            super(ModifierSourceType.MOB_EFFECT, Comparator.comparing((MobEffectInstance inst) -> inst.getEffect().unwrapKey().get().identifier(), Identifier::compareTo), data);
         }
 
         @Override

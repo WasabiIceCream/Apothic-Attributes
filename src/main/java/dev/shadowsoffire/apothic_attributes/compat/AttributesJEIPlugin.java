@@ -4,6 +4,7 @@ import java.util.List;
 
 import dev.shadowsoffire.apothic_attributes.ApothicAttributes;
 import dev.shadowsoffire.apothic_attributes.client.AttributesGui;
+import dev.shadowsoffire.apothic_attributes.client.AttributesLibClient;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
@@ -16,6 +17,7 @@ import net.minecraft.resources.Identifier;
  * Registers the exclusion zones for the Attributes GUI, which prevents the JEI overlay (and the overlays of
  * recipe viewers that consume JEI plugins through a bridge, such as EMI) from rendering below it.
  */
+/* Fabric: registered as a jei_mod_plugin entrypoint in fabric.mod.json (JEI ignores @JeiPlugin there). */
 @JeiPlugin
 public class AttributesJEIPlugin implements IModPlugin {
 
@@ -29,12 +31,9 @@ public class AttributesJEIPlugin implements IModPlugin {
         registration.addGuiContainerHandler(InventoryScreen.class, new IGuiContainerHandler<InventoryScreen>(){
             @Override
             public List<Rect2i> getGuiExtraAreas(InventoryScreen screen) {
-                return screen.children().stream()
-                    .filter(AttributesGui.class::isInstance)
-                    .map(AttributesGui.class::cast)
-                    .findFirst()
-                    .map(AttributesGui::getExclusionAreas)
-                    .orElse(List.of());
+                // Port note: the GUI isn't a child of the screen here (see AttributesGui), so it's looked up directly.
+                AttributesGui gui = AttributesLibClient.getActiveAttribGui();
+                return gui != null && gui.getParent() == screen ? gui.getExclusionAreas() : List.of();
             }
         });
     }

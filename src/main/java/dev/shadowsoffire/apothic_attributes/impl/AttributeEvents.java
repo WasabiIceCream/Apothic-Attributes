@@ -13,6 +13,7 @@ import dev.shadowsoffire.apothic_attributes.util.AuxDmgTracker;
 import dev.shadowsoffire.apothic_attributes.util.LEInvoker;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -67,6 +68,9 @@ public class AttributeEvents {
         });
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> blockBreaker = null);
         PlayerBlockBreakEvents.CANCELED.register((level, player, pos, state, blockEntity) -> blockBreaker = null);
+        // A break that bails out between BEFORE and AFTER (e.g. the block couldn't be removed) fires neither AFTER nor
+        // CANCELED; don't let that player's multiplier leak onto experience popped later by something else.
+        ServerTickEvents.END_SERVER_TICK.register(server -> blockBreaker = null);
 
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override

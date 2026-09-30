@@ -26,6 +26,9 @@ dependencies {
 
     // Placebo, Apothic Attributes' required base library (composite build, see settings.gradle.kts).
     implementation("dev.shadowsoffire.placebo:placebo-fabric")
+
+    // JEI, for the Attributes GUI's exclusion zones (optional at runtime: only loaded through JEI's plugin entrypoint).
+    compileOnly("maven.modrinth:jei:29.43.0.106")
 }
 
 loom {
