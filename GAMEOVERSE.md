@@ -42,7 +42,7 @@ flight, crit particle, vanilla crit multiplier. Note: with no player online the 
 Every integration point upstream `26.1` (3.0.1, `20acf56`+JEI commit `bd1d3a5`) has, and what calls the port's code at
 runtime. Line numbers are in `src/main/java/dev/shadowsoffire/apothic_attributes/`. "Bridge" is
 `mod-dev/gameoverse-attribute-bridge` (its `ApothicEventsMixin` hooks the method names below; keep their signatures).
-53 rows (some group several hooks): 32 wired, 10 fixed now (8 missing, 2 wired but wrong), 11 skipped with a reason.
+54 rows (some group several hooks): 32 wired, 11 fixed now (9 missing, 2 wired but wrong), 11 skipped with a reason.
 
 ### Setup, registration, networking
 | Upstream point | Port wiring | Status |
@@ -62,7 +62,8 @@ runtime. Line numbers are in `src/main/java/dev/shadowsoffire/apothic_attributes
 | `OnDatapackSyncEvent` -> `ConfigPayload` | `impl/AttributeEvents#register` `SYNC_DATA_PACK_CONTENTS` | wired |
 | `AddServerReloadListenersEvent` (`al_config`) | `impl/AttributeEvents#register` `ResourceManagerHelper` | wired |
 | `RegisterCommandsEvent`: `/apoth` root, `ApotheosisCommandEvent`, `bonus_modifier` | none | skipped: our Apotheosis port registers `/apoth` itself; `bonus_modifier` is an admin tool (vanilla `attribute_modifiers` covers it) |
-| Curios compat (slots, GUI) | none | skipped: Trinkets here; Trinkets applies its own modifiers |
+| Curios compat (slots) | none | skipped: Trinkets here; Trinkets applies its own modifiers |
+| Curios compat (GUI modifier sources) -> Trinkets | `compat/TrinketsModifierSources` (registered from `AttributesLibClient` when `trinkets` is loaded; compiled against `reference-jars/trinkets-4.0.1+26.1.jar`) | **fixed**: items in Trinkets slots are listed with their icon as the source of their modifiers (were "unknown"). Uses Trinkets' impl `TrinketUtilities.forEachModifier`, the call Trinkets applies them with (same per-slot ids), skipping slots where `canApplyEffects` is false; re-check on Trinkets updates |
 | `GatherDataEvent` (`MixProvider`) | none | skipped: build-time datagen |
 | `NeoForgeMod.enableMergedAttributeTooltips` | none | skipped: display only; Dynamic Tooltips draws item stat lines |
 

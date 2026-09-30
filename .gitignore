@@ -26,3 +26,5 @@ logs
 /.apt_generated/
 /.apt_generated_tests/
 **/.cache/
+# installed mod jars compiled against (compileOnly), not source, not committed
+reference-jars/

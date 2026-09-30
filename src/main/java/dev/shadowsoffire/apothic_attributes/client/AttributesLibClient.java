@@ -18,6 +18,7 @@ import dev.shadowsoffire.placebo.config.Configuration;
 import dev.shadowsoffire.placebo.util.Offset;
 import dev.shadowsoffire.placebo.util.Offset.AnchorPoint;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -77,6 +78,11 @@ public class AttributesLibClient implements ClientModInitializer {
     public void onInitializeClient() {
         ScreenEvents.AFTER_INIT.register(AttributesLibClient::addAttribComponent);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, buildContext) -> registerCommands(dispatcher));
+
+        // Port replacement for upstream's Curios compat: Trinkets items as modifier sources in the Attributes GUI.
+        if (FabricLoader.getInstance().isModLoaded("trinkets")) {
+            dev.shadowsoffire.apothic_attributes.compat.TrinketsModifierSources.register();
+        }
 
         ParticleProviderRegistry.getInstance().register(ALObjects.Particles.APOTH_CRIT, ApothCritProvider::new);
 

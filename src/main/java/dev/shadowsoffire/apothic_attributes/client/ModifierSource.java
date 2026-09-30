@@ -61,6 +61,14 @@ public abstract class ModifierSource<T> implements Comparable<ModifierSource<T>>
                 data);
         }
 
+        /**
+         * Port addition: an item source of another type (Trinkets slots, see {@code compat.TrinketsModifierSources}),
+         * drawn the same way.
+         */
+        protected ItemModifierSource(ModifierSourceType<ItemStack> type, Comparator<ItemStack> comparator, ItemStack data) {
+            super(type, comparator, data);
+        }
+
         @Override
         public void render(GuiGraphicsExtractor gfx, Font font, int x, int y) {
             var pose = gfx.pose();
