@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -96,6 +97,17 @@ public class AttributesGui implements Renderable, GuiEventListener {
     protected boolean open = false;
     protected long lastRenderTick = -1;
 
+    private static final List<Predicate<AttributeInstance>> HIDDEN_FILTERS = new ArrayList<>();
+
+    /**
+     * Port addition: hides every attribute instance matching the filter from the GUI, on top of the config's "Hidden
+     * Attributes" list. For mods that replace attribute instances (e.g. one attribute forwarding its modifiers to
+     * another), whose own entry would only duplicate the target's. Attributes whose value is NaN are always hidden.
+     */
+    public static void addHiddenFilter(Predicate<AttributeInstance> filter) {
+        HIDDEN_FILTERS.add(filter);
+    }
+
     public AttributesGui(InventoryScreen parent) {
         this.parent = parent;
         this.player = Minecraft.getInstance().player;
@@ -124,6 +136,8 @@ public class AttributesGui implements Renderable, GuiEventListener {
             .map(this.player::getAttribute)
             .filter(Objects::nonNull)
             .filter(ai -> !ALConfig.hiddenAttributes.contains(ai.getAttribute().unwrapKey().get().identifier()))
+            .filter(ai -> !Double.isNaN(ai.getValue()))
+            .filter(ai -> HIDDEN_FILTERS.stream().noneMatch(f -> f.test(ai)))
             .filter(ai -> !hideUnchanged || (ai.getBaseValue() != ai.getValue()))
             .forEach(this.data::add);
         this.data.sort(this::compareAttrs);
