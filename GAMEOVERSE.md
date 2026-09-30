@@ -42,7 +42,7 @@ flight, crit particle, vanilla crit multiplier. Note: with no player online the 
 Every integration point upstream `26.1` (3.0.1, `20acf56`+JEI commit `bd1d3a5`) has, and what calls the port's code at
 runtime. Line numbers are in `src/main/java/dev/shadowsoffire/apothic_attributes/`. "Bridge" is
 `mod-dev/gameoverse-attribute-bridge` (its `ApothicEventsMixin` hooks the method names below; keep their signatures).
-59 points: 44 wired before this audit, 9 fixed now, 6 skipped with a reason (some rows group several).
+53 rows (some group several hooks): 32 wired, 10 fixed now (8 missing, 2 wired but wrong), 11 skipped with a reason.
 
 ### Setup, registration, networking
 | Upstream point | Port wiring | Status |
