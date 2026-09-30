@@ -224,6 +224,8 @@ public class AttributesGui implements Renderable, GuiEventListener {
         this.renderTooltip(gfx, mouseX, mouseY);
         gfx.text(font, Component.translatable("apothic_attributes.gui.attributes"), this.leftPos + 8, this.topPos + 5, 0xFF404040, false);
         gfx.text(font, ApothicAttributes.lang("text", "hide_unchanged"), this.leftPos + 20, this.topPos + 152, 0xFF404040, false);
+        // The panel draws after the screen's widgets (ScreenEvents.afterExtract), which covers the button; draw it here too.
+        this.hideUnchangedBtn.drawBox(gfx, mouseX, mouseY);
     }
 
     @SuppressWarnings("deprecation")
@@ -598,9 +600,13 @@ public class AttributesGui implements Renderable, GuiEventListener {
 
         @Override
         protected void extractContents(GuiGraphicsExtractor gfx, int pMouseX, int pMouseY, float pPartialTick) {
+            this.drawBox(gfx, pMouseX, pMouseY);
+        }
+
+        void drawBox(GuiGraphicsExtractor gfx, int pMouseX, int pMouseY) {
             int u = 131, v = 20;
             int vOffset = hideUnchanged ? 0 : 10;
-            if (this.isHovered) {
+            if (this.isMouseOver(pMouseX, pMouseY)) {
                 vOffset += 20;
             }
             gfx.blit(RenderPipelines.GUI_TEXTURED, TEXTURES, this.getX(), this.getY(), u, v + vOffset, 10, 10, TEX_W, TEX_H);
