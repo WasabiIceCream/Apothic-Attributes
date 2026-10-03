@@ -13,6 +13,8 @@ everything under `assets/` is "All Rights Reserved" (`LICENSE_ASSETS`). Before t
   Six English strings that postdate the split were written for this port instead (four attribute
   descriptions and Cooldown Reduction's name and description). The Vietnamese translation only exists
   after the split and is left out.
+  Later upstream translation updates (e.g. pt_br, zh_cn, uk_ua in 2026-09) are post-split too and are not
+  merged; the one English typo they fixed ("towrds") is corrected here independently.
 
 `LICENSE_ASSETS` is kept as upstream's file; it applies to upstream's current assets, not to the
 MIT-era files shipped here.
